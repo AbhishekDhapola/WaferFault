@@ -1,22 +1,22 @@
 import sys
 import os
 import pandas as pd
-import numpy as numpy
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import RobustScaler,FunctionTransformer
-from sklearn.pipeline import pipeline
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from src.constant import *
 from src.exception import CustomException
 from src.logger import logging
-from src.utlis.main_utlis import main_utlis
-from dataClasses import dataclass
-
+from src.utils.main_utils import MainUtils
+from dataclasses import dataclass
+TARGET_COLUMN = "label"
 @dataclass
 class DataTransformationConfig:
-    artifact_dir=os.path.join(artifact_folder)
+    artifact_dir=os.path.join("artifact_folder")
     transformed_train_file_path=os.path.join(artifact_dir,'train.npy')
     transformed_test_file_path=os.path.join(artifact_dir,'test.py')
     transformed_object_file_path=os.path.join(artifact_dir,'preprocessor.pkl')
@@ -32,7 +32,7 @@ class DataTransformation:
 
     @staticmethod
     def get_data(feature_store_file_path:str)->pd.DataFrame:
-           """
+        """
         Method Name :   get_data
         Description :   This method reads all the validated raw data from the feature_store_file_path and returns a pandas DataFrame containing the merged data. 
         
@@ -43,6 +43,8 @@ class DataTransformation:
         Revisions   :   moved setup to cloud
         """
         try:
+            
+
             data=pd.read_csv(feature_store_file_path)
             data.rename(columns={"Good/Bad":TARGET_COLUMN},inplace=True)
             return data
@@ -64,7 +66,7 @@ class DataTransformation:
             raise CustomException(e,sys)
 
     def initiate_data_transformation(self):
-         """
+        """
             Method Name :   initiate_data_transformation
             Description :   This method initiates the data transformation component for the pipeline 
             
@@ -74,7 +76,7 @@ class DataTransformation:
             Version     :   1.2
             Revisions   :   moved setup to cloud
         """
-         logging.info(
+        logging.info(
             "Entered initiate_data_transformation method of Data_Transformation class"
         )
 
@@ -89,40 +91,22 @@ class DataTransformation:
             X_train_scaled=preprocessor.fit_transform(X_train)
             X_test_scaled= preprocessor.transform(X_test)
 
-             preprocessor_path = self.data_transformation_config.transformed_object_file_path
+            #preprocessor_path = self.data_transformation_config.transformed_object_file_path
+           # preprocessor_path = self.DataTransformationConfig.transformed_object_file_path
+            preprocessor_path = self.data_ingestion_config.transformed_object_file_path
+
+            #preprocessor_path = self.DataTransformationConfig.transformed_object_file_path
+
             os.makedirs(os.path.dirname(preprocessor_path), exist_ok= True)
             self.utils.save_object( file_path= preprocessor_path,
                         obj= preprocessor)
 
-            train_arr = np.c_[X_train_scaled, np.array(y_train) ]
-            test_arr = np.c_[ X_test_scaled, np.array(y_test) ]
+            train_arr = np.c_[X_train_scaled, np.array(Y_train) ]
+            test_arr = np.c_[ X_test_scaled, np.array(Y_test) ]
 
             return (train_arr, test_arr, preprocessor_path)
         
 
         except Exception as e:
             raise CustomException(e, sys) from e
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
