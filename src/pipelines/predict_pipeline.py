@@ -43,7 +43,7 @@ class PredictionPipeline:
         """
 
         try:
-            #creating the file
+            #creating the fileee
             pred_file_input_dir = "prediction_artifacts"
             os.makedirs(pred_file_input_dir, exist_ok=True)
 
